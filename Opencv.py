@@ -46,10 +46,12 @@ while True:
     if key==27:
         cap.release()
         cv2.destroyAllWindows()               
-                    
+    while name=="":
+         print("no Face detected")
     while name=="Unknown":
          print("Unknown face")
     while name=="Devansh":
+            
             success,frame=cap.read()
             frame=detector.findHands(frame)
             lmList=detector.findPosition(frame,draw=False)
@@ -76,15 +78,15 @@ while True:
                 totalFingers=fingers.count(1)
                 print(totalFingers) 
                 # cnt.led(totalFingers)     
-                cTime=time.time()
-                fps=1/(cTime-pTime)
-                pTime=cTime
-                cv2.putText(frame,f'FPS:{int(fps)}',(400,70),cv2.FONT_HERSHEY_PLAIN,3,(255,0,0),3)
-                cv2.imshow("Frame",frame)
-                key=cv2.waitKey(1)
-                if key==27:
-                    cap.release()
-                    cv2.destroyAllWindows()  
+            cTime=time.time()
+            fps=1/(cTime-pTime)
+            pTime=cTime
+            cv2.putText(frame,f'FPS:{int(fps)}',(400,70),cv2.FONT_HERSHEY_PLAIN,3,(255,0,0),3)
+            cv2.imshow("Frame",frame)
+            key=cv2.waitKey(1)
+            if key==27:
+                cap.release()
+                cv2.destroyAllWindows()  
 
                 
             
