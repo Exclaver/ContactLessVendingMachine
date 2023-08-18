@@ -1,2 +1,1 @@
- # cv2.imshow("Frame",frame)
-    # cv2.imshow("Image",frame)
+ # cv2.ellipse(ImgBackground,(1136,196),(103,103),0,0,counter*selectionSpeed,(0,255,0),15)
