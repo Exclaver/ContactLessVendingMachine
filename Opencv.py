@@ -21,6 +21,21 @@ tipIds=[4,8,12,16,20]
 name1=0
 name=0
 
+def Output():
+    global pTime
+    
+    cTime=time.time()
+    fps=1/(cTime-pTime)
+    pTime=cTime
+    cv2.putText(frame,f'FPS:{int(fps)}',(400,70),cv2.FONT_HERSHEY_PLAIN,3,(255,0,0),3)
+    ImgBackground=cv2.imread("Resources\Background.png")
+    ImgBackground[139:139+480,50:50+640]=frame
+    cv2.imshow("Background",ImgBackground)
+    key=cv2.waitKey(1)
+    if key==27:
+        cap.release()
+        cv2.destroyAllWindows()  
+
 
 
 
@@ -35,19 +50,9 @@ while True:
                     # y1,x1,y2,x2=face_loc[0],face_loc[1],face_loc[2],face_loc[3]
                     # cv2.putText(frame,name,(x1,y1-10),cv2.FONT_HERSHEY_DUPLEX,1,(0,0,0),2)
 
-                    # cv2.rectangle(frame,(x1,y1),(x2,y2),(0,0,200),4)
-                    
-    cTime=time.time()
-    fps=1/(cTime-pTime)
-    pTime=cTime
-    cv2.putText(frame,f'FPS:{int(fps)}',(400,70),cv2.FONT_HERSHEY_PLAIN,3,(255,0,0),3)
-    cv2.imshow("Frame",frame)
-    key=cv2.waitKey(1)
-    if key==27:
-        cap.release()
-        cv2.destroyAllWindows()               
-    while name=="":
-         print("no Face detected")
+                    # cv2.rectangle(frame,(x1,y1),(x2,y2),(0,0,200),4)            
+    Output()
+
     while name=="Unknown":
          print("Unknown face")
     while name=="Devansh":
@@ -78,20 +83,7 @@ while True:
                 totalFingers=fingers.count(1)
                 print(totalFingers) 
                 # cnt.led(totalFingers)     
-            cTime=time.time()
-            fps=1/(cTime-pTime)
-            pTime=cTime
-            cv2.putText(frame,f'FPS:{int(fps)}',(400,70),cv2.FONT_HERSHEY_PLAIN,3,(255,0,0),3)
-            cv2.imshow("Frame",frame)
-            key=cv2.waitKey(1)
-            if key==27:
-                cap.release()
-                cv2.destroyAllWindows()  
-
-                
-            
-        
-
+            Output()
             
         
 
