@@ -158,8 +158,9 @@ while True:
           #   if selectionList[0]!=0:
                #   ImgBackground[636:636+65,133:133+65]=listImgIcons[0]  
                  
-            print(selectionList[0])
+            print(selectionList)
             Output()
+     
 
      
             
