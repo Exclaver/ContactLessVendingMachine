@@ -8,7 +8,7 @@ import OpenCVModule as htm
 sfr=SimpleFacerec()
 sfr.load_encoding_images("images/")
 counter=0
-selectionSpeed=8
+selectionSpeed=9
 wCam,hCam=640,480
 cap=cv2.VideoCapture(0)
 cap.set(3,wCam)
@@ -19,6 +19,8 @@ modePositions=[(1136,196),(1000,384),(1136,581)]
 counterPause=0
 selectionList=[-1,-1,-1]
 ImgBackground=0
+userCredit={}
+
 
 
 detector=htm.handDetector(detectionCon=0.75)
@@ -41,17 +43,20 @@ listImgIcons=[]
 for imgIconsPath in listImgIconsPath:
      listImgIcons.append(cv2.imread(os.path.join(folderPathIcons,imgIconsPath)))
 
-
-
-def Output():
-    
+def Output():    
     global pTime
     global ImgBackground
     cTime=time.time()
     fps=1/(cTime-pTime)
     pTime=cTime
     cv2.putText(frame,f'FPS:{int(fps)}',(400,70),cv2.FONT_HERSHEY_PLAIN,3,(255,0,0),3)
-    ImgBackground=cv2.imread("Resources\Background.png")
+    if name=="Devansh":
+     cv2.putText(frame,"Welcome Devansh",(200,450),cv2.FONT_HERSHEY_COMPLEX_SMALL ,1,(255,53,153),2)
+    elif name=="Unknown":
+     cv2.putText(frame,"Unknown Face",(200,450),cv2.FONT_HERSHEY_COMPLEX_SMALL ,1,(255,53,153),2)
+    else:
+        cv2.putText(frame,"No Face Detected",(200,450),cv2.FONT_HERSHEY_COMPLEX_SMALL ,1,(255,53,153),2)
+    ImgBackground=cv2.imread("Resources\Background.jpg")
     ImgBackground[139:139+480,50:50+640]=frame
     ImgBackground[0:720,847:1280]=listImgModes[modeType]
     cv2.ellipse(ImgBackground,modePositions[selections-1],(103,103),0,0,counter*selectionSpeed,(0,156,0),15)
@@ -61,7 +66,7 @@ def Output():
      ImgBackground[636:636+65,340:340+65]=listImgIcons[2+selectionList[1]]
     if selectionList[2]!=-1:
      ImgBackground[636:636+65,542:542+65]=listImgIcons[5+selectionList[2]]
-
+    
     cv2.imshow("Background",ImgBackground)
     key=cv2.waitKey(1)
     if key==27:
@@ -70,35 +75,23 @@ def Output():
     
 
 
-
-
-
 while True:
     
      ret,frame=cap.read()
      face_location,face_names=sfr.detect_known_faces(frame)
      for face_loc,name in zip(face_location,face_names):              
         print(name)
-        name1=name
-
-     # for face_loc,name in zip(face_location,face_names):
-     #  y1,x1,y2,x2=face_loc[0],face_loc[1],face_loc[2],face_loc[3]
-     #  cv2.putText(frame,name,(x1,y1-10),cv2.FONT_HERSHEY_DUPLEX,1,(0,0,0),2)
-
-     #  cv2.rectangle(frame,(x1,y1),(x2,y2),(0,0,200),4)            
-
+        name1=name          
      Output()
-     while name=="Unknown":
+     if name=="Unknown":
          print("Unknown face")
+
      while name=="Devansh":
             
             success,frame=cap.read()
             frame=detector.findHands(frame)
             lmList=detector.findPosition(frame,draw=False)
-                        # print(lmList)
-     
-            
-                        
+                        # print(lmList)       
             if len(lmList)!=0 and counterPause==0 and modeType<3:
                 fingers=[]
 
@@ -152,28 +145,7 @@ while True:
                  counterPause+=1
                  if counterPause>40:
                       counterPause=0
-          
-                # cnt.led(totalFingers)  
-          #   if selectionList[0]!=-1:
-          #   if selectionList[0]!=0:
-               #   ImgBackground[636:636+65,133:133+65]=listImgIcons[0]  
-                 
-            print(selectionList)
+                    
             Output()
-     
-
-     
-            
-            
-        
-
-
-            
-    
-
-
-
-
-
-
-    
+     if name!="Devansh" and name!="Unknown":
+          print("No Face Detected")
