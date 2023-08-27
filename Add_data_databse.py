@@ -11,7 +11,7 @@ data={
     "Devansh":
         {
             "name":"heyyydevansh",
-            "Credits":"69"
+            "Credits":69
         }
 }
 for key,value in data.items():
