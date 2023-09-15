@@ -3,7 +3,7 @@ from simple_facerec import SimpleFacerec
 import time
 import os
 import OpenCVModule as htm
-# import controller as cnt
+#import controller as cnt
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
@@ -20,6 +20,9 @@ firebase_admin.initialize_app(cred,{
 sfr=SimpleFacerec()
 sfr.load_encoding_images("images/")
 
+register=0
+authloop=-1
+cntr=1
 bucket=storage.bucket()
 mainCounter=0
 selectionSpeed=9
@@ -39,13 +42,8 @@ modeType=4
 selections=-1
 ImgStudent=[]
 
-
-
-
 detector=htm.handDetector(detectionCon=0.75)
 tipIds=[4,8,12,16,20]
-
-
 
 #importing all moodes to list
 folderPathModes="Resources/Modes"
@@ -63,10 +61,11 @@ for imgIconsPath in listImgIconsPath:
 
 
 
+
 def Output():
-    
     global pTime
     global ImgBackground
+    global cntr
     cTime=time.time()
     fps=1/(cTime-pTime)
     pTime=cTime
@@ -76,23 +75,45 @@ def Output():
     elif name=="Unknown":
      cv2.putText(frame,"Unknown Face",(200,450),cv2.FONT_HERSHEY_COMPLEX_SMALL ,1,(255,53,153),2)
     else:
-        cv2.putText(frame,"No Face Detected",(200,450),cv2.FONT_HERSHEY_COMPLEX_SMALL ,1,(255,53,153),2)
+     cv2.putText(frame,"No Face Detected",(200,450),cv2.FONT_HERSHEY_COMPLEX_SMALL ,1,(255,53,153),2)
    
     ImgBackground=cv2.imread("Resources\Background.jpg")
     ImgBackground[139:139+480,50:50+640]=frame
     ImgBackground[0:720,847:1280]=listImgModes[modeType]
-    if mainCounter!=0 and name!="Unknown":
-     cv2.putText(ImgBackground,str(studentInfo['Credits']),(980,500),cv2.FONT_HERSHEY_COMPLEX ,1,(255,0,0),2)
-     ImgBackground[150:150+245,953:953+225]=ImgStudent
-    if authloop==0 and selectionList[0]!=-1 and selectionList[1]!=-1 and selectionList[2]!=-1:
-         cv2.putText(ImgBackground,str(studentInfo['Credits']),(980,500),cv2.FONT_HERSHEY_COMPLEX ,1,(255,0,0),2)
-         print("oolah")
 
-    if selections==4:
-        cv2.ellipse(ImgBackground,(1050,445),(100,0),180,0,counter*4.6,(255,0,0),15)
-    else:
+    if mainCounter!=0 and name!="Unknown":
+     cv2.putText(ImgBackground,str("Credits: "+str(studentInfo['Credits'])),(980,450),cv2.FONT_HERSHEY_COMPLEX ,1,(255,0,0),2)
+     cv2.putText(ImgBackground,str("Name: "+ str(studentInfo['name'])),(890,500),cv2.FONT_HERSHEY_COMPLEX ,1,(255,0,0),2)
+     cv2.putText(ImgBackground,"Show 4 to Confirm Your Identity",(865,550),cv2.FONT_HERSHEY_COMPLEX_SMALL ,1,(0,0,255),2)
+     cv2.putText(ImgBackground,"Show 2 to register as new user",(865,620),cv2.FONT_HERSHEY_COMPLEX_SMALL ,1,(0,0,255),2)
+
+
+     ImgBackground[150:150+245,953:953+225]=ImgStudent            #student image from databse
+    if authloop==0 and selectionList[0]!=-1 and selectionList[1]!=-1 and selectionList[2]!=-1:
+         cv2.putText(ImgBackground,str("credits: "+ str(studentInfo['Credits'])),(980,550),cv2.FONT_HERSHEY_COMPLEX ,1,(255,0,0),2)
+         print("oolah")
+     #     if cntr==1 and selectionList[0]==1 and selectionList[1]==2 and selectionList[2]==3:
+     #       cntr=2                              #SERVO CODE
+     #       cnt.led(selectionList[1])
+     #     elif cntr==1 and selectionList[0]==2 and selectionList[1]==2 and selectionList[2]==2:
+     #         cntr=2                              #SERVO CODE
+     #         cnt.led1(selectionList[0]+5)     # pin 6,7,8
+           
+    
+
+    ###############login page animation
+    if selections==2 and authloop==1:
+         cv2.ellipse(ImgBackground,(1050,650),(100,0),180,0,counter*4.6,(255,0,0),15)
+    elif selections==4:
+        cv2.ellipse(ImgBackground,(1050,580),(100,0),180,0,counter*4.6,(0,0,255),15)
+    elif selections==-1:
+        pass                          #to remove dot at position -1
+    elif authloop==0:                  #elipse for selections
         cv2.ellipse(ImgBackground,modePositions[selections-1],(103,103),0,0,counter*selectionSpeed,(0,153,0),15)
     #iconlist
+
+
+
     if selectionList[0]!=-1:
      ImgBackground[636:636+65,133:133+65]=listImgIcons[selectionList[0]-1]  
     if selectionList[1]!=-1:
@@ -108,7 +129,7 @@ def Output():
     
 #authentication
 
-while AuthenticationList[0]!=4:
+while AuthenticationList[0]!=4 :
      authloop=1
      ret,frame=cap.read()
      face_location,face_names=sfr.detect_known_faces(frame)
@@ -125,7 +146,8 @@ while AuthenticationList[0]!=4:
              #Image from database
              blob=bucket.get_blob(f'images/{name}.jpg')
              array=np.frombuffer(blob.download_as_string(),np.uint8)
-             ImgStudent=cv2.imdecode(array,cv2.COLOR_BGRA2BGR)
+             ImgStudent1=cv2.imdecode(array,cv2.COLOR_BGRA2BGR)
+             ImgStudent=cv2.resize(ImgStudent1,(225,245),interpolation = cv2.INTER_AREA)
              #update credits
           #    if selectionList==[]
           #    ref=db.reference(f'Students/{name}')
@@ -167,10 +189,15 @@ while AuthenticationList[0]!=4:
                 if fingers==[0,1,1,1,1]:
                      if selections!=4:
                         counter=1
-                     selections=4                                            
+                     selections=4      
+                elif fingers==[0,1,1,0,0]:
+                     if selections!=2:
+                         counter=1
+                     selections=2                                      
                 else:
                      selections=-1
                      counter=0
+                
                 #print(selections)
                 if counter>0:
                      counter+=1
@@ -188,12 +215,12 @@ while AuthenticationList[0]!=4:
                       counterPause=0
             print(AuthenticationList)
             
-          
+           
             Output()
      if name!="Devansh" and name!="Unknown":
           print("No Face Detected")
      
-     
+
 #maincode
 mainCounter=0
 counter=0
@@ -217,9 +244,8 @@ while True:
      if name=="Unknown":
          print("Unknown face")
 
-     while name=="Devansh":
-            
-            if selectionList==[2,3,2] and creditCounter<1:
+     while name=="Devansh":            
+            if selectionList[0]!=-1 and selectionList[1]!=-1 and selectionList[2]!=-1 and creditCounter<1:
                ref=db.reference(f'Students/{name}')
                studentInfo['Credits']-=10  
                ref.child('Credits').set(studentInfo['Credits'])
@@ -227,7 +253,7 @@ while True:
             success,frame=cap.read()
             frame=detector.findHands(frame)
             lmList=detector.findPosition(frame,draw=False)
-                        # print(lmList)       
+                             
             if len(lmList)!=0 and counterPause==0 and modeType<3:
                 fingers=[]
 
@@ -282,7 +308,10 @@ while True:
                  if counterPause>40:
                       counterPause=0
             
+            
             print(selectionList)
             Output()
+
+            
      if name!="Devansh" and name!="Unknown":
           print("No Face Detected")

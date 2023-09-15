@@ -1,6 +1,9 @@
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
+# import speechrecognition as sp
+
+# file_name=sp.speech()
 
 cred = credentials.Certificate("ServiceAccountKey.json")
 firebase_admin.initialize_app(cred,{
@@ -10,9 +13,20 @@ ref= db.reference('Students')
 data={
     "Devansh":
         {
-            "name":"heyyydevansh",
+            "name":"Devansh Matha",
             "Credits":69
-        }
+        },
+    # f"{file_name}":
+    #     {
+    #         "name":f"{file_name}",
+    #         "Credits":69
+    #     },
+    "Deepak":
+    {
+        "name":"Deepak",
+        "Credits":70
+    }
 }
 for key,value in data.items():
-    ref.child(key).set(value)
+    ref.child(key).update(value)
+
