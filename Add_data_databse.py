@@ -16,11 +16,6 @@ data={
             "name":"Devansh Matha",
             "Credits":69
         },
-    # f"{file_name}":
-    #     {
-    #         "name":f"{file_name}",
-    #         "Credits":69
-    #     },
     "Deepak":
     {
         "name":"Deepak",
